@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Modèles entraînés (lourds) : à régénérer avec les scripts
+models/
+
+# Données locales
+data/
+*.csv
+!results/*.csv
