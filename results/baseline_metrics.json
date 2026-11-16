@@ -1,0 +1,13 @@
+{
+  "model": "baseline",
+  "accuracy": 0.682,
+  "macro_f1": 0.6305187407221414,
+  "f1_per_class": {
+    "négatif": 0.7458302215583769,
+    "neutre": 0.36578171091445427,
+    "positif": 0.7799442896935933
+  },
+  "train_seconds": 7.0,
+  "n_train": 20000,
+  "n_test": 5000
+}

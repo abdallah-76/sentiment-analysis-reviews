@@ -1,0 +1,13 @@
+{
+  "model": "distilbert",
+  "accuracy": 0.7418,
+  "macro_f1": 0.6641836275474128,
+  "f1_per_class": {
+    "négatif": 0.7958164963156644,
+    "neutre": 0.3548581774290887,
+    "positif": 0.8418762088974855
+  },
+  "train_seconds": 5458.0,
+  "n_train": 20000,
+  "n_test": 5000
+}

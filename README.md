@@ -113,12 +113,83 @@ python src/update_readme.py
 <!-- RESULTS:START -->
 ## Résultats
 
-*Cette section est générée automatiquement par `python src/update_readme.py` à partir de `results/`. Lance d'abord `baseline.py`, `transformer.py` puis ce script.*
+Résultats mesurés sur le jeu de test (avis jamais vus pendant l'entraînement).
+
+| Modèle | Avis d'entraînement | Accuracy | F1 macro | F1 négatif | F1 neutre | F1 positif | Temps d'entraînement |
+|---|---|---|---|---|---|---|---|
+| TF-IDF + Régression logistique | 20 000 | 68.2% | 0.631 | 0.746 | 0.366 | 0.780 | 7 s |
+| DistilBERT (fine-tuné) | 20 000 | 74.2% | 0.664 | 0.796 | 0.355 | 0.842 | 91.0 min |
+
+![Comparaison des modèles](results/comparison.png)
+
+### Observations
+
+- Meilleur F1 macro : **DistilBERT (fine-tuné)** (0.664, accuracy 74.2%).
+- Écart de F1 macro entre les deux modèles : **0.034** (20 000 vs 20 000 avis d'entraînement).
+- Temps d'entraînement : DistilBERT (fine-tuné) 91.0 min contre 7 s pour TF-IDF + Régression logistique (environ x780).
+- TF-IDF + Régression logistique : classe la plus difficile = **neutre** (F1 0.366).
+- DistilBERT (fine-tuné) : classe la plus difficile = **neutre** (F1 0.355).
+
+### Matrices de confusion
+
+Chaque ligne = la vraie classe, chaque colonne = ce que le modèle a prédit. La diagonale est la part d'avis bien classés ; le reste montre *comment* le modèle se trompe.
+
+**TF-IDF + Régression logistique**
+
+![Matrice baseline](results/confusion_matrix_baseline.png)
+
+**DistilBERT (fine-tuné)**
+
+![Matrice distilbert](results/confusion_matrix_distilbert.png)
+
+### Ce que la baseline a appris
+
+Les mots les plus associés à chaque classe (coefficients de la régression logistique) :
+
+| Classe | Mots les plus associés |
+|---|---|
+| négatif | not, disappointed, even, never, terrible, broke, return, not worth, useless, horrible |
+| neutre | but, however, okay, not very, ok, though, three stars, otherwise, meh, membership |
+| positif | great, love, perfect, good, not too, perfectly, nice, excellent, loves, easy |
+
+### Exemples d'erreurs : TF-IDF + Régression logistique
+
+| Avis | Réel | Prédit |
+|---|---|---|
+| These are AWFUL. They are see through, the fabric feels like tablecloth, and they fit like children’s clothing. Customer service did seem to be nice though, but I regret missing my return date for these. I wouldn’t ev... | négatif | neutre |
+| Really, really thin. | négatif | positif |
+| My package arrived with nothing in it?! My cord that I use for my phone is broken and I was really depending on this replacement. I will give a better rating when I have something to rate!! | négatif | neutre |
+| I've been using this product with my laundry for a while now and I like it, but I had to return it because it wasn't packaged right and everything was damaged. | négatif | neutre |
+| Added so much to the projects! Works well. | négatif | positif |
+| I have been using this for several years and recently bought several only to find out that they all have perfume in them now. | négatif | positif |
+
+### Exemples d'erreurs : DistilBERT (fine-tuné)
+
+| Avis | Réel | Prédit |
+|---|---|---|
+| Added so much to the projects! Works well. | négatif | positif |
+| I have been using this for several years and recently bought several only to find out that they all have perfume in them now. | négatif | positif |
+| When you order a product, you expect the product to be as described. They were advertised as CAP Dumbbells. However, the product received was Golds Gym dumbbells. If I wanted Golds Gym, I would have bought these from ... | négatif | positif |
+| Doesn't distribute the steam strong enough small fan but it is quiet but who cares | négatif | neutre |
+| Use at your own risk. My wife and I both had burning sensation and skin reactions. No history of sensitive skin. | négatif | positif |
+| I love it It is adorable , perfect size! But my glass part has a crack, can you please replace the glass part? Thank you | négatif | positif |
 
 ## Démo
 
-*(Capture de l'appli Streamlit à ajouter dans `docs/demo.png`.)*
+![Démo Streamlit](docs/demo.png)
+
 <!-- RESULTS:END -->
+![Interface de la démo](docs/interface.png)
+
+## Analyse
+
+À nombre d'avis égal (20 000), DistilBERT dépasse la baseline en accuracy (74,2 % contre 68,2 %), surtout sur les classes négative et positive. L'écart de F1 macro est plus modeste (environ 0.03), car la classe « neutre » reste difficile pour les deux modèles (F1 autour de 0.36) : les avis à 3 étoiles mélangent des signaux positifs et négatifs.
+
+Le gain de DistilBERT a un coût : 91 minutes d'entraînement sur CPU contre 7 secondes pour la baseline.
+
+Les exemples d'erreurs montrent aussi un problème de données : plusieurs avis « mal classés » ont un texte clairement positif (« Works well », « I love it... perfect size ») mais une note de 1 ou 2 étoiles. Une partie des erreurs vient donc du label, pas du modèle.
+
+Piste non testée : DistilBERT n'a pas de pondération de classes (contrairement à la baseline) et n'a fait qu'une epoch, ce qui peut expliquer en partie son rappel plus faible sur le neutre.
 
 ## Structure du projet
 
